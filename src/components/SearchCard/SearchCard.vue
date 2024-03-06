@@ -128,6 +128,9 @@ function clickButton() {
     color: white;
     font-size: 16px;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-weight: 600;
     width: 150px;
 

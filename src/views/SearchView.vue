@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Loading from '@/components/Loading/Loading.vue';
-import Pagination from '@/components/Pagination/Pagination.vue';
+import Loading from '@/components/Loading/Loading.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
 import SearchCard from '@/components/SearchCard/SearchCard.vue'
 import { AlbumsService, type GetAlbumsRequest } from '@/services/albums.service'
 import type { Vinyl } from '@/services/vinyls.service'
@@ -17,6 +17,7 @@ const hasAlbums = computed(() => {
 })
 
 async function onSearch() {
+  if (isLoading.value) return
   try {
     isLoading.value = true
     const request: GetAlbumsRequest = {
@@ -43,16 +44,16 @@ async function onSearch() {
           placeholder="Escreva o nome do album"
         />
         <button @click="onSearch">
-          <Loading v-if="isLoading" color="#222" size="24px" />
-          <span v-else>Buscar</span>
+          <span>Buscar</span>
         </button>
       </div>
 
-      <div :class="$style.albums">
-        <SearchCard v-for="album in albums" :key="album.externalId" :album="album" />
+      <div :class="{ [$style.albums]: true, [$style.loading]: isLoading }">
+        <Loading v-if="isLoading" :class="$style.loading" color="#fff" size="64px" />
+        <SearchCard v-else v-for="album in albums" :key="album.externalId" :album="album" />
       </div>
 
-      <Pagination v-if="hasAlbums" :currentPage="currentPage" @change-page="onSearch" />
+      <Pagination v-if="hasAlbums" v-model="currentPage" @change-page="onSearch" />
     </div>
   </div>
 </template>
@@ -72,6 +73,7 @@ async function onSearch() {
   padding: 16px;
   overflow-y: auto;
   max-height: 100%;
+  height: 100%;
 }
 .search {
   width: 100%;
@@ -93,6 +95,9 @@ async function onSearch() {
     border-radius: 8px;
     background-color: #fff;
     font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     transition: 0.2s;
 
@@ -103,10 +108,21 @@ async function onSearch() {
 }
 .albums {
   max-height: 100%;
+  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 8px;
   padding-right: 8px;
+
+  .loading {
+    align-self: center;
+    justify-self: center;
+  }
+
+  &.loading {
+    justify-content: center;
+  }
 }
 </style>

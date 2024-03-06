@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useVinyls } from '@/stores/useVinyls'
 import SearchCard from '@/components/SearchCard/SearchCard.vue'
 import { VinylsService } from '@/services/vinyls.service'
+import { VinylUtils } from '@/utils/array.utils'
+import BarLetter from '@/components/BarLetter/BarLetter.vue'
 
 const vinylsStore = useVinyls()
 
-// const currentVinyls = ref()
+const currentLetter = ref('')
+
+const mappedVinyls = computed(() => {
+  return VinylUtils.mapVinylsByArtists(vinylsStore.vinyls)
+})
 
 async function fetchVinyls() {
   const newVinyls = await VinylsService.getVinyls()
@@ -21,10 +27,25 @@ onMounted(() => {
 <template>
   <div :class="$style.wrapper">
     <div :class="$style.content">
-      <h1 :class="$style.title">Bem vindo, Lohan!</h1>
+      <div :class="$style.header">
+        <h1 :class="$style.title">Bem vindo, Lohan!</h1>
+
+        <button v-show="currentLetter !== ''" @click="currentLetter = ''">Limpar filtro</button>
+      </div>
+
+      <BarLetter v-model="currentLetter" />
 
       <div :class="$style['vinyls-wrapper']">
-        <SearchCard v-for="vinyl in vinylsStore.vinyls" :key="vinyl.externalId" :album="vinyl" />
+        <template v-if="currentLetter === ''">
+          <SearchCard v-for="vinyl in vinylsStore.vinyls" :key="vinyl.externalId" :album="vinyl" />
+        </template>
+        <template v-else>
+          <SearchCard
+            v-for="vinyl in mappedVinyls.get(currentLetter)"
+            :key="vinyl.externalId"
+            :album="vinyl"
+          />
+        </template>
       </div>
     </div>
   </div>
@@ -43,16 +64,35 @@ onMounted(() => {
 .content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   padding: 16px;
   width: 100%;
   height: 100%;
 
-  h1.title {
-    color: #fff;
-    font-size: 32px;
-    text-align: center;
-    align-self: flex-start;
+  .header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    h1.title {
+      color: #fff;
+      font-size: 32px;
+      text-align: center;
+      align-self: flex-start;
+    }
+
+    button {
+      padding: 8px 16px;
+      color: #222;
+      font-weight: 600;
+      background-color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      &:hover {
+        background-color: #f0f0f0;
+      }
+    }
   }
 
   .vinyls-wrapper {

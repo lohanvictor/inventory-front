@@ -3,27 +3,41 @@
 import { computed } from 'vue'
 
 const props = defineProps<Props>()
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const canPrevious = computed(() => {
-  return props.currentPage <= 1
+  return props.modelValue > 1
 })
 
 interface Props {
-  currentPage: number
+  modelValue: number
 }
 
 interface Emits {
-  (event: 'change-page', page: number): void
+  (event: 'update:modelValue', page: number): void
+  (event: 'change-page'): void
+}
+
+function emitChangePage(newPage: number) {
+  emit('update:modelValue', newPage)
+  emit('change-page')
 }
 </script>
 
 <template>
   <div :class="$style.pagination">
-    <button :disabled="!canPrevious" :class="$style.button">Inicio</button>
-    <button :disabled="!canPrevious" :class="$style.button">Anterior</button>
-    <span>{{ currentPage }}</span>
-    <button :class="$style.button">Proximo</button>
+    <button @click="emitChangePage(1)" :disabled="!canPrevious" :class="$style.button">
+      Inicio
+    </button>
+    <button
+      @click="emitChangePage(props.modelValue - 1)"
+      :disabled="!canPrevious"
+      :class="$style.button"
+    >
+      Anterior
+    </button>
+    <span>{{ modelValue }}</span>
+    <button @click="emitChangePage(props.modelValue + 1)" :class="$style.button">Proximo</button>
   </div>
 </template>
 
