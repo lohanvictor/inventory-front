@@ -27,12 +27,6 @@ interface Emits {
 
 <template>
   <div :class="$style.wrapper">
-    <button
-      @click="$emit('update:modelValue', '#')"
-      :class="{ [$style.selected]: props.modelValue === '#' }"
-    >
-      #
-    </button>
     <template v-for="letter in allLetters" :key="letter">
       <button
         @click="$emit('update:modelValue', letter)"

@@ -16,7 +16,7 @@ const hasAlbums = computed(() => {
   return Boolean(albums.value.length)
 })
 
-async function onSearch() {
+async function search() {
   if (isLoading.value) return
   try {
     isLoading.value = true
@@ -30,6 +30,11 @@ async function onSearch() {
   } finally {
     isLoading.value = false
   }
+}
+
+async function onSearch() {
+  currentPage.value = 1
+  await search()
 }
 </script>
 
@@ -53,7 +58,7 @@ async function onSearch() {
         <SearchCard v-else v-for="album in albums" :key="album.externalId" :album="album" />
       </div>
 
-      <Pagination v-if="hasAlbums" v-model="currentPage" @change-page="onSearch" />
+      <Pagination v-if="hasAlbums" v-model="currentPage" @change-page="search" />
     </div>
   </div>
 </template>
