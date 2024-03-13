@@ -11,6 +11,7 @@ export interface Vinyl {
   cover: string
   year: number
   artists: Artist[]
+  tracks: { name: string; position: string; side: string }[]
 }
 
 export class VinylsService {

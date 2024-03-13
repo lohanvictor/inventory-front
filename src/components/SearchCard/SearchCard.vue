@@ -7,7 +7,11 @@ import Loading from '../Loading/Loading.vue'
 interface Props {
   album: Vinyl
 }
+interface Emits {
+  (event: 'click', payload: Vinyl): void
+}
 const props = defineProps<Props>()
+const emits = defineEmits<Emits>()
 
 const artists = computed(() => {
   return props.album.artists.map((artist) => artist.name).join(', ')
@@ -62,7 +66,7 @@ function clickButton() {
 </script>
 
 <template>
-  <div :class="$style.card">
+  <button :class="$style.card" @click="emits('click', props.album)">
     <div :class="$style.info">
       <div :class="$style.img" :style="{ backgroundImage }"></div>
       <div :class="$style.texts">
@@ -78,14 +82,16 @@ function clickButton() {
       <span v-else-if="alreadyAdded">Remover</span>
       <span v-else-if="!alreadyAdded"> Adicionar </span>
     </button>
-  </div>
+  </button>
 </template>
 
 <style module lang="scss">
-.card {
+button.card {
   background-color: #333;
   padding: 16px;
   border-radius: 8px;
+  border: none;
+  cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -101,6 +107,7 @@ function clickButton() {
     .texts {
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
       gap: 8px;
       .name {
         font-size: 32px;

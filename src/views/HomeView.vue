@@ -2,13 +2,18 @@
 import { computed, onMounted, ref } from 'vue'
 import { useVinyls } from '@/stores/useVinyls'
 import SearchCard from '@/components/SearchCard/SearchCard.vue'
-import { VinylsService } from '@/services/vinyls.service'
+import { VinylsService, type Vinyl } from '@/services/vinyls.service'
 import { VinylUtils } from '@/utils/array.utils'
 import BarLetter from '@/components/BarLetter/BarLetter.vue'
+import VinylModal from '@/components/VinylModal/VinylModal.vue'
 
 const vinylsStore = useVinyls()
 
 const currentLetter = ref('')
+const currentVinyl = ref<Vinyl | null>(null)
+
+type ModalTypes = 'none' | 'open'
+const modalState = ref<ModalTypes>('none')
 
 const mappedVinyls = computed(() => {
   return VinylUtils.mapVinylsByArtists(vinylsStore.vinyls)
@@ -17,6 +22,11 @@ const mappedVinyls = computed(() => {
 async function fetchVinyls() {
   const newVinyls = await VinylsService.getVinyls()
   vinylsStore.updateVinyls(newVinyls)
+}
+
+function selectVinyl(vinyl: Vinyl) {
+  currentVinyl.value = vinyl
+  modalState.value = 'open'
 }
 
 onMounted(() => {
@@ -37,15 +47,26 @@ onMounted(() => {
 
       <div :class="$style['vinyls-wrapper']">
         <template v-if="currentLetter === ''">
-          <SearchCard v-for="vinyl in vinylsStore.vinyls" :key="vinyl.externalId" :album="vinyl" />
+          <SearchCard
+            @click="selectVinyl"
+            v-for="vinyl in vinylsStore.vinyls"
+            :key="vinyl.externalId"
+            :album="vinyl"
+          />
         </template>
         <template v-else>
           <SearchCard
             v-for="vinyl in mappedVinyls.get(currentLetter)"
             :key="vinyl.externalId"
+            @click="selectVinyl"
             :album="vinyl"
           />
         </template>
+        <VinylModal
+          v-if="modalState === 'open'"
+          @close="modalState = 'none'"
+          :album="currentVinyl!"
+        />
       </div>
     </div>
   </div>
